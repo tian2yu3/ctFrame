@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<frame-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.carltian.com/xml/ns/frame"
+	xsi:schemaLocation="http://www.carltian.com/xml/ns/frame https://www.carltian.com/xml/ns/frame/frame-config_1_0.xsd"
+	version="1.0">
+	<database />
+	<localization />
+	<remote />
+	<services />
+	<tasks />
+</frame-config>

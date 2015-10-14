@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.carltian.com/xml/ns/frame"
+	xmlns:myNs="http://www.carltian.com/xml/ns/frame" version="1.0" elementFormDefault="qualified"
+	targetNamespace="http://www.carltian.com/xml/ns/frame">
+
+	<!-- Define Frame Config -->
+	<xsd:element name="frame-config" type="frame-configType">
+		<xsd:unique name="database-init-arg-name-uniqueness">
+			<xsd:selector xpath="./myNs:database/myNs:init-arg" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+		<xsd:unique name="action-name-uniqueness">
+			<xsd:selector xpath="./myNs:remote/myNs:action" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+		<xsd:unique name="remote-package-name-uniqueness">
+			<xsd:selector xpath="./myNs:remote/myNs:package" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+		<xsd:unique name="service-name-uniqueness">
+			<xsd:selector xpath="./myNs:services/myNs:service" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+		<xsd:unique name="services-package-name-uniqueness">
+			<xsd:selector xpath="./myNs:services/myNs:package" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+		<xsd:unique name="task-name-uniqueness">
+			<xsd:selector xpath="./myNs:tasks/myNs:task" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+		<xsd:unique name="tasks-package-name-uniqueness">
+			<xsd:selector xpath="./myNs:tasks/myNs:package" />
+			<xsd:field xpath="@name" />
+		</xsd:unique>
+	</xsd:element>
+
+	<xsd:complexType name="frame-configType">
+		<xsd:all>
+			<xsd:element name="database" type="databaseType" minOccurs="0" />
+			<xsd:element name="localization" type="localizationType" minOccurs="0" />
+			<xsd:element name="remote" type="remoteType" minOccurs="0" />
+			<xsd:element name="services" type="servicesType" minOccurs="0" />
+			<xsd:element name="tasks" type="tasksType" minOccurs="0" />
+		</xsd:all>
+		<xsd:attribute name="version" fixed="1.0" use="required" type="xsd:string" />
+	</xsd:complexType>
+
+	<!-- Define Module -->
+	<xsd:complexType name="databaseType">
+		<xsd:sequence>
+			<xsd:element name="init-arg" type="injectType" minOccurs="0" maxOccurs="unbounded" nillable="true" />
+		</xsd:sequence>
+		<xsd:attribute name="class" type="nonEmptyStringType"/>
+	</xsd:complexType>
+	
+	<xsd:complexType name="localizationType">
+		<xsd:attribute name="default" type="nonEmptyStringType" />
+		<xsd:attribute name="loader" type="nonEmptyStringType" default="com.carltian.frame.local.LocalizationLoaderImpl" />
+	</xsd:complexType>
+
+	<xsd:complexType name="remoteType">
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="action" type="actionType">
+				<xsd:unique name="action-init-arg-name-uniqueness">
+					<xsd:selector xpath="./myNs:init-arg" />
+					<xsd:field xpath="@name" />
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="package" type="packageType" />
+		</xsd:choice>
+		<xsd:attribute name="pathName" type="nonEmptyStringType" />
+	</xsd:complexType>
+
+	<xsd:complexType name="servicesType">
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="service" type="serviceType">
+				<xsd:unique name="service-init-arg-name-uniqueness">
+					<xsd:selector xpath="./myNs:init-arg" />
+					<xsd:field xpath="@name" />
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="package" type="packageType" />
+		</xsd:choice>
+	</xsd:complexType>
+	
+	<xsd:complexType name="tasksType">
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="task" type="taskType">
+				<xsd:unique name="task-init-arg-name-uniqueness">
+					<xsd:selector xpath="./myNs:init-arg" />
+					<xsd:field xpath="@name" />
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="package" type="packageType" />
+		</xsd:choice>
+	</xsd:complexType>
+
+	<!-- Define Module Item -->
+	<xsd:complexType name="packageType">
+		<xsd:attribute name="name" type="nonEmptyStringType" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="actionType">
+		<xsd:complexContent>
+			<xsd:extension base="defaultRegType">
+				<xsd:attribute name="module" type="nonEmptyStringType" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="serviceType">
+		<xsd:complexContent>
+			<xsd:extension base="defaultRegType">
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="taskType">
+		<xsd:complexContent>
+			<xsd:extension base="singletonRegType">
+				<xsd:attribute name="delay" type="nonNegativeLongType" />
+				<xsd:attribute name="period" type="nonNegativeLongType" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- Define Registration Type -->
+	<xsd:complexType name="baseRegType" abstract="true">
+		<xsd:sequence>
+			<xsd:element name="init-arg" type="injectType" minOccurs="0" maxOccurs="unbounded"
+				nillable="true" />
+		</xsd:sequence>
+		<xsd:attribute name="class" type="nonEmptyStringType" use="required" />
+		<xsd:attribute name="name" type="xsd:string" />
+	</xsd:complexType>
+	
+	<xsd:complexType name="singletonRegType" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="baseRegType">
+				<xsd:attribute name="singleton" type="xsd:boolean" fixed="true" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	
+	<xsd:complexType name="defaultRegType" abstract="true">
+		<xsd:complexContent>
+			<xsd:extension base="baseRegType">
+				<xsd:attribute name="singleton" type="xsd:boolean" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- Define Inject Type -->
+	<xsd:complexType name="injectType">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="name" type="nonEmptyStringType" use="required" />
+				<xsd:attribute name="type">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="Value" />
+							<xsd:enumeration value="Resource" />
+							<xsd:enumeration value="Action" />
+							<xsd:enumeration value="Service" />
+							<xsd:enumeration value="Task" />
+							<xsd:enumeration value="Extension" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:attribute>
+				<xsd:attribute name="extType" type="nonEmptyStringType" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+	<!-- Define Common Type -->
+	<xsd:simpleType name="nonEmptyStringType">
+		<xsd:restriction base="xsd:string">
+			<xsd:minLength value="1" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="nonNegativeLongType">
+		<xsd:restriction base="xsd:long">
+			<xsd:minInclusive value="0" />
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
